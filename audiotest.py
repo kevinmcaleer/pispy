@@ -23,8 +23,8 @@ print("Connected to Wi-Fi")
 print(wlan.ifconfig())
 
 # I2S configuration
-SAMPLE_RATE = 16000
-BITS_PER_SAMPLE = 16
+SAMPLE_RATE = 40000
+BITS_PER_SAMPLE = 32
 
 i2s = I2S(
     0,
@@ -49,7 +49,7 @@ buffer_size = 1024
 buff = bytearray(buffer_size)
 
 def amplify_audio(buffer, gain):
-    audio_format = 'h' if BITS_PER_SAMPLE == 16 else 'B'
+    audio_format = 'h' if BITS_PER_SAMPLE in [16,24,32] else 'B'
     audio_samples = array.array(audio_format, buffer)
     for i in range(len(audio_samples)):
         audio_samples[i] = min(max(int(audio_samples[i] * gain), -2**(BITS_PER_SAMPLE-1)), 2**(BITS_PER_SAMPLE-1)-1)
@@ -91,9 +91,9 @@ while True:
             num_read = i2s.readinto(buff)
 #             print('read data',num_read)
             if num_read > 0:
-                amplified_buff = amplify_audio(buff,2)
+#                 amplified_buff = amplify_audio(buff,4)
 #                 print('data sent', str(buff))
-                client.sendall(amplified_buff)
+                client.sendall(buff)
         except OSError as e:
             print('error',e)
             break
